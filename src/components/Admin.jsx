@@ -7,12 +7,20 @@ const Admin = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [guests, setGuests] = useState([
-    { firstName: "", lastName: "", tableNumber: "" },
+    { id: "", firstName: "", lastName: "", tableNumber: "" },
   ]);
   const [loading, setLoading] = useState(false);
   const [loadingGuests, setLoadingGuests] = useState(false);
   const [message, setMessage] = useState("");
   const [listGuests, setListGuests] = useState([]);
+  const [hasConsulted, setHasConsulted] = useState(false);
+
+  // Datos para editar
+  const [loadEdit, setLoadEdit] = useState(false);
+  const [editId, setEditId] = useState("");
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editTableNumber, setEditTableNumber] = useState("");
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
@@ -115,6 +123,7 @@ const Admin = () => {
 
       console.log(data);
       setListGuests(data.guests);
+      setHasConsulted(true);
     } catch (error) {
       alert(error.message || "Error al obtener listado");
       console.log(error.message || "Error al obtener listado");
@@ -123,6 +132,52 @@ const Admin = () => {
     }
   };
 
+  const handleEditGuest = async () => {
+    setLoadEdit(true);
+
+    //construir payload
+    const payload = {};
+
+    if (editId) payload.id = Number(editId);
+    if (editFirstName) payload.firstName = editFirstName;
+    if (editLastName) payload.lastName = editLastName;
+    if (editTableNumber) payload.table = Number(editTableNumber);
+
+    try {
+      const response = await fetch(
+        "https://weeding-back.onrender.com/admin/edit-guest",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-password": password,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      console.log("Response: ", response);
+
+      if (!response.ok) {
+        throw new Error("Error al editar invitado");
+      }
+
+      const data = await response.json();
+
+      console.log(data);
+
+      alert("Invitado editado correctamente, actualizar listado superior");
+      setEditId("");
+      setEditFirstName("");
+      setEditLastName("");
+      setEditTableNumber("");
+    } catch (error) {
+      console.log(error);
+      alert(error.message || "Error al editar invitado");
+    } finally {
+      setLoadEdit(false);
+    }
+  };
   if (!isAuthenticated) {
     return (
       <div className="admin-login">
@@ -248,12 +303,17 @@ const Admin = () => {
           className="consult-btn"
           disabled={loadingGuests}
         >
-          {loadingGuests ? "Cargando..." : "Consultar Invitados"}
+          {loadingGuests
+            ? "Cargando..."
+            : hasConsulted
+              ? "Actualizar Lista"
+              : "Consultar Invitados"}
         </button>
         {listGuests.length > 0 && (
           <table className="guests-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Mesa</th>
@@ -262,6 +322,7 @@ const Admin = () => {
             <tbody>
               {listGuests.map((guest, index) => (
                 <tr key={index}>
+                  <td>{guest.id}</td>
                   <td>
                     {guest.first_name.charAt(0).toUpperCase() +
                       guest.first_name.slice(1)}
@@ -276,6 +337,59 @@ const Admin = () => {
             </tbody>
           </table>
         )}
+      </div>
+
+      <div className="edit-list-box">
+        <h2 className="list-title">Editar Invitados</h2>
+        <p className="subtitle-edit">
+          Con el ID de la tabla podrá editar nombre, apellido y N° Mesa
+        </p>
+        <div className="box-edit-input">
+          <input
+            type="text"
+            placeholder="ID"
+            className="edit-input"
+            value={editId}
+            onChange={(e) => setEditId(e.target.value)}
+          />
+        </div>
+        <div className="box-edit-input">
+          <input
+            type="text"
+            placeholder="Nombre"
+            className="edit-input"
+            value={editFirstName}
+            onChange={(e) => setEditFirstName(e.target.value)}
+          />
+        </div>
+        <div className="box-edit-input">
+          <input
+            type="text"
+            placeholder="Apellido"
+            className="edit-input"
+            value={editLastName}
+            onChange={(e) => setEditLastName(e.target.value)}
+          />
+        </div>
+        <div className="box-edit-input">
+          <input
+            type="number"
+            placeholder="N° Mesa"
+            className="edit-input"
+            value={editTableNumber}
+            onChange={(e) => setEditTableNumber(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <button
+            disabled={loadEdit}
+            onClick={handleEditGuest}
+            className="edit-btn"
+          >
+            {loadEdit ? "Editando..." : "Editar Invitado"}
+          </button>
+        </div>
       </div>
     </div>
   );

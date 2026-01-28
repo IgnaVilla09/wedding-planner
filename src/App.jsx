@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Hero from "./components/Hero";
@@ -64,6 +64,12 @@ function SearchPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetch("https://weeding-back.onrender.com/ping")
+      .then(() => console.log("Backend despierto"))
+      .catch(() => console.log("No se pudo despertar backend"));
+  }, []);
 
   return (
     <>
