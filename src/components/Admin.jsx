@@ -22,10 +22,17 @@ const Admin = () => {
   const [editLastName, setEditLastName] = useState("");
   const [editTableNumber, setEditTableNumber] = useState("");
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     // Cambia "admin123" por tu contraseña deseada
     if (password === "ignavercel123") {
+      const response = await fetch("https://weeding-back.onrender.com/ping");
+      if (!response.ok) {
+        setMessage("Error de conexión con el servidor");
+        return;
+      }
+      const data = await response.json();
+      console.log(data);
       setIsAuthenticated(true);
       setMessage("");
     } else {
@@ -178,6 +185,7 @@ const Admin = () => {
       setLoadEdit(false);
     }
   };
+
   if (!isAuthenticated) {
     return (
       <div className="admin-login">
