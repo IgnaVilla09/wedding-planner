@@ -6,6 +6,9 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [load, setLoad] = useState(false);
+
+  // Panel Administrador
   const [guests, setGuests] = useState([
     { id: "", firstName: "", lastName: "", tableNumber: "" },
   ]);
@@ -25,6 +28,7 @@ const Admin = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     // Cambia "admin123" por tu contraseña deseada
+    setLoad(true);
     if (password === "ignavercel123") {
       const response = await fetch("https://weeding-back.onrender.com/ping");
       if (!response.ok) {
@@ -35,9 +39,11 @@ const Admin = () => {
       console.log(data);
       setIsAuthenticated(true);
       setMessage("");
+      setLoad(false);
     } else {
       setMessage("Contraseña incorrecta");
       setPassword("");
+      setLoad(false);
     }
   };
 
@@ -211,8 +217,8 @@ const Admin = () => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            <button type="submit" className="login-btn">
-              Acceder
+            <button type="submit" disabled={load} className="login-btn">
+              {load ? "Iniciando Sesión..." : "Acceder"}
             </button>
           </form>
           {message && <p className="error-message">{message}</p>}
