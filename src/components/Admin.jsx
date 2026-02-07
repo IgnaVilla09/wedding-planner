@@ -71,7 +71,7 @@ const Admin = () => {
       (guest) =>
         guest.firstName.trim() &&
         guest.lastName.trim() &&
-        guest.tableNumber !== "",
+        guest.tableNumber !== ""
     );
 
     if (!isValid) {
@@ -98,7 +98,7 @@ const Admin = () => {
               table: Number(guest.tableNumber),
             })),
           }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -125,7 +125,7 @@ const Admin = () => {
             "Content-Type": "application/json",
             "x-admin-password": password,
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -148,6 +148,11 @@ const Admin = () => {
   const handleEditGuest = async () => {
     setLoadEdit(true);
 
+    if (!editId || !editFirstName || !editLastName || !editTableNumber) {
+      alert("Por favor, ingrese todos los campos");
+      setLoadEdit(false);
+      return;
+    }
     //construir payload
     const payload = {};
 
@@ -166,7 +171,7 @@ const Admin = () => {
             "x-admin-password": password,
           },
           body: JSON.stringify(payload),
-        },
+        }
       );
 
       console.log("Response: ", response);
@@ -303,7 +308,9 @@ const Admin = () => {
 
       {message && (
         <p
-          className={`form-message ${message.includes("✓") ? "success" : "error"}`}
+          className={`form-message ${
+            message.includes("✓") ? "success" : "error"
+          }`}
         >
           {message}
         </p>
@@ -320,8 +327,8 @@ const Admin = () => {
           {loadingGuests
             ? "Cargando..."
             : hasConsulted
-              ? "Actualizar Lista"
-              : "Consultar Invitados"}
+            ? "Actualizar Lista"
+            : "Consultar Invitados"}
         </button>
         {listGuests.length > 0 && (
           <table className="guests-table">
